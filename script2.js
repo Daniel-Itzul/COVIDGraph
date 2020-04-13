@@ -1,4 +1,4 @@
-function BuildChart(labels, values, chartTitle) {    
+function BuildChart(labels, c1, c2, c3, chartTitle) {    
     "use strict";
     var config = {
         type: 'line',
@@ -6,18 +6,25 @@ function BuildChart(labels, values, chartTitle) {
             labels: labels,
             datasets: [
                 {
-                label: 'My First dataset',
-                data: values,
+                label: 'Guatemala',
+                data: c1,
                 fill: false,
-                borderColor: "red", 
-                backgroundColor: "red", 
+                borderColor: 'green', 
+                backgroundColor: 'green', 
                 },
                 {
-                label: 'My Second dataset',
-                data: [34,1,56,28,7,10,5],
+                label: 'El Salvador',
+                data: c2,
                 fill: false,
-                borderColor: "blue",
-                backgroundColor: "blue", 
+                borderColor: 'cyan',
+                backgroundColor: 'cyan', 
+                },
+                {
+                label: 'Honduras',
+                data: c3,
+                fill: false,
+                borderColor: 'blue',
+                backgroundColor: 'blue', 
                 }
             ]
         },
@@ -25,7 +32,7 @@ function BuildChart(labels, values, chartTitle) {
             responsive: true,
             title: {
                 display: true,
-                text: 'Chart.js Line Chart'
+                text: chartTitle
             },
             tooltips: {
                 mode: 'index',
@@ -40,20 +47,20 @@ function BuildChart(labels, values, chartTitle) {
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'Month'
+                        labelString: 'Fecha'
                     }
                 }],
                 yAxes: [{
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'Value'
+                        labelString: 'Casos Confirmados'
                     }
                 }]
             }
         }
     };
-    var ctx = document.getElementById("myChart").getContext('2d');
+    var ctx = document.getElementById('myChart').getContext('2d');
     var myChart = new Chart(ctx, config);
     return myChart;
 }
@@ -66,26 +73,65 @@ var NI = [];
 var CR = [];
 var PA = [];
 
-var xhttpmx = new XMLHttpRequest();
+async function DataFeedLabels(country,status) {
+    const baseUrl = "https://api.covid19api.com/country/";
+    const response = await fetch(baseUrl+country+"/status/"+status);
+    const data = await response.json();
+    var labels = data.map(function (e) {
+            return e.Date;
+        })
+    var values = data.map(function (e) {
+            return e.Cases;
+        })
+    return labels;
+}
+
+async function DataFeedValues(country,status) {
+    const baseUrl = "https://api.covid19api.com/country/";
+    const response = await fetch(baseUrl+country+"/status/"+status);
+    const data = await response.json();
+    var values = data.map(function (e) {
+            return e.Cases;
+        })
+    return values;
+}
+
+
+SV = DataFeedLabels('el-salvador','confirmed');
+console.log(SV);
+
+//Object.entries(PA).forEach(([key, val]) => console.log(key, val));
+//Object.keys(PA).map(function(key) {
+//  PA.[key]  = PA.[key].date;
+//});
+
+
+//GT = PA.Date;
+
+//console.log(PA.map(material => material.Date));
+
+//console.log(PA);
+
+/*var xhttpmx = new XMLHttpRequest();
 var xhttpgt = new XMLHttpRequest();
 var xhttpsv = new XMLHttpRequest();
 var xhttphn = new XMLHttpRequest();
 var xhttpni = new XMLHttpRequest();
 var xhttpcr = new XMLHttpRequest();
-var xhttppa = new XMLHttpRequest();
+var xhttppa = new XMLHttpRequest();*/
 
-xhttpmx.onreadystatechange = function() {
+/*xhttpmx.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
         var json = JSON.parse(this.response);
         MX = json;
-        console.log(MX);
+        //console.log(MX);
     }
 };
-xhttpgt.onreadystatechange = function() {
+/*xhttpgt.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
         var json = JSON.parse(this.response);
         GT = json;
-        console.log(GT.map);
+        console.log(GT);
     }
 };
 xhttpsv.onreadystatechange = function() {
@@ -122,11 +168,11 @@ xhttppa.onreadystatechange = function() {
         PA = json;
         console.log(PA);
     }
-};
+};*/
 
-xhttpmx.open("GET", "https://api.covid19api.com/dayone/country/mexico/status/confirmed", true);
+/*xhttpmx.open("GET", "https://api.covid19api.com/dayone/country/mexico/status/confirmed", true);
 xhttpmx.send();
-xhttpgt.open("GET", "https://api.covid19api.com/dayone/country/guatemala/status/confirmed", true);
+/*xhttpgt.open("GET", "https://api.covid19api.com/dayone/country/guatemala/status/confirmed", true);
 xhttpgt.send();
 xhttpsv.open("GET", "https://api.covid19api.com/dayone/country/el-salvador/status/confirmed", true);
 xhttpsv.send();
@@ -136,7 +182,7 @@ xhttpcr.open("GET", "https://api.covid19api.com/dayone/country/costa-rica/status
 xhttpcr.send();
 xhttppa.open("GET", "https://api.covid19api.com/dayone/country/panama/status/confirmed", true);
 xhttppa.send();
-
-window.onload = function() {
-    BuildChart(GT.Dates, GT.Cases, "chartTitle")
+*/
+window.onload = async function() {
+   BuildChart(await DataFeedLabels('panama','confirmed'),await DataFeedValues('guatemala','confirmed'), await DataFeedValues('el-salvador','confirmed'),await DataFeedValues('honduras','confirmed'),'Confirmados')
 };
